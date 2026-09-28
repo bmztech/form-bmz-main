@@ -3,16 +3,16 @@
  * posta aqui). Existe pra requisição sair servidor→servidor: sem CORS no
  * navegador e sem expor o token de autenticação no código do cliente.
  *
- * HOTFIX (de novo): URL e token hardcoded porque o .env da Hostinger não é
- * lido no runtime e a versão só-env descartava todos os leads em produção.
- * NÃO voltar pra process.env sem antes confirmar (pelo log de diagnóstico
- * abaixo) que as envs estão visíveis em produção. O token já vazou no
- * histórico do git — rotacionar o token na API do BI resolve o vazamento,
- * removê-lo daqui sem env funcional só derruba a captação.
+ * Config: usa LEAD_WEBHOOK_URL/LEAD_WEBHOOK_TOKEN do ambiente quando as DUAS
+ * estiverem visíveis no runtime; senão cai nos valores hardcoded abaixo (o
+ * .env da Hostinger já falhou em produção e derrubou a captação — o log
+ * "[lead-webhook] config" mostra qual fonte está valendo). Quando o Runtime
+ * Log confirmar "env" em produção de forma estável: rotacionar o token na
+ * API do BI (o atual vazou no histórico do git) e remover o fallback.
  */
 
-const WEBHOOK_URL = "https://api-bi.bmztech.com.br/api/webhooks/leads/form";
-const WEBHOOK_TOKEN =
+const FALLBACK_URL = "https://api-bi.bmztech.com.br/api/webhooks/leads/form";
+const FALLBACK_TOKEN =
   "yHvuUetxW6pOalE3Py67GnnL2gHduyDpPTiVVjG2TxrKisj8ts3xA5lgIyTLmXST";
 
 export async function POST(request: Request): Promise<Response> {
@@ -23,18 +23,20 @@ export async function POST(request: Request): Promise<Response> {
     return new Response(null, { status: 400 });
   }
 
-  // Diagnóstico do .env em produção: as envs NÃO são usadas por enquanto,
-  // só logamos se o runtime as enxerga pra decidir quando voltar pra elas.
+  const envUrl = process.env.LEAD_WEBHOOK_URL;
+  const envToken = process.env.LEAD_WEBHOOK_TOKEN;
+  const useEnv = Boolean(envUrl && envToken);
+
   console.log(
-    `[lead-webhook] diagnóstico env: LEAD_WEBHOOK_URL=${
-      process.env.LEAD_WEBHOOK_URL ? "visível" : "AUSENTE"
-    } LEAD_WEBHOOK_TOKEN=${
-      process.env.LEAD_WEBHOOK_TOKEN ? "visível" : "AUSENTE"
-    } NODE_ENV=${process.env.NODE_ENV}`,
+    `[lead-webhook] config: usando ${useEnv ? "env" : "fallback hardcoded"} ` +
+      `(LEAD_WEBHOOK_URL=${envUrl ? "visível" : "AUSENTE"} ` +
+      `LEAD_WEBHOOK_TOKEN=${envToken ? "visível" : "AUSENTE"})`,
   );
 
-  const url = new URL(WEBHOOK_URL);
-  url.searchParams.set("token", WEBHOOK_TOKEN);
+  const token = useEnv ? (envToken as string) : FALLBACK_TOKEN;
+  // `set` tolera uma URL que já venha com `?token=` (sobrescreve sem duplicar).
+  const url = new URL(useEnv ? (envUrl as string) : FALLBACK_URL);
+  url.searchParams.set("token", token);
 
   try {
     const response = await fetch(url, {
@@ -43,7 +45,7 @@ export async function POST(request: Request): Promise<Response> {
         "Content-Type": "application/json",
         // A API do BI autentica pelo header X-Webhook-Token, com fallback
         // pro `?token=` da query string — enviamos os dois por redundância.
-        "X-Webhook-Token": WEBHOOK_TOKEN,
+        "X-Webhook-Token": token,
       },
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(8_000),
