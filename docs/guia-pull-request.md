@@ -205,7 +205,7 @@ Salve a descrição preenchida em `pr.md` ou `release.md`, fora do repo, e passe
 
 ## Segurança
 
-- **Nunca** versione token, senha, chave de API ou URL privada. Um token do webhook do BI já foi parar no histórico do git e precisou ser rotacionado.
+- **Nunca** versione token, senha, chave de API ou URL privada. A única exceção conhecida é o fallback do webhook do BI em `src/app/api/lead-webhook/route.ts`, mantido por decisão do time porque o `.env` da Hostinger já falhou em produção. Não crie outras exceções.
 - O ID do Meta Pixel **não** é segredo e pode ficar no código. O token do webhook e o token da API de Conversões, se vier a existir, são segredos e vão em variável de ambiente.
 - Se um segredo for commitado por engano, avise o time na hora. Apagar o commit depois não basta, é preciso rotacionar o segredo.
 

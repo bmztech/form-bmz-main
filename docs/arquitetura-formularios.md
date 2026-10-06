@@ -194,7 +194,7 @@ No clique final, o navegador posta o lead em `/api/lead-webhook`, na mesma orige
 - **Sem reenvio:** o `leadReported` no componente impede um segundo envio se o lead voltar e clicar de novo.
 - **Telefone com outro id:** o aux-acidente lê `answers.whatsapp` e o adic25 lê `answers.telefone`. Num funil novo, aponte `phoneDigits` para o id certo.
 - **Configuração:** `LEAD_WEBHOOK_URL` e `LEAD_WEBHOOK_TOKEN`. O token vai no header `X-Webhook-Token` e também em `?token=`. O timeout é de 8 segundos.
-- **Fallback fixo no código:** a rota tem um fallback com URL e token fixos (commit `0e9ca9e`), hoje presente na `main` e na `develop`. Os logs de 05/10 já mostram "usando env". O próximo passo é rotacionar o token vazado e remover o fallback.
+- **Fallback fixo no código, por decisão do time:** a rota tem um fallback com URL e token fixos (commit `0e9ca9e`), presente na `main` e na `develop`. Ele fica de propósito, porque o `.env` da Hostinger já falhou em produção e derrubou a captação. Os logs de 05/10 mostram "usando env", e o log "[lead-webhook] config" diz a cada lead qual fonte está valendo. Como o token está no repositório, quem tem acesso ao repo tem acesso ao token. Mantenha o repo privado e restrinja quem pode ler.
 
 ### Meta Pixel
 
