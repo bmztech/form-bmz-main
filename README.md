@@ -486,9 +486,9 @@ de anúncio, não deve competir com o site institucional na busca).
 ## Deploy
 
 Produção roda no Hostinger, como processo Node único (`npm run build` +
-`npm start`). O fluxo é via PR: `main` é a branch de desenvolvimento, `prod`
-é a branch de produção — abrir PR de `main` para `prod` e mergear libera o
-deploy.
+`npm start`). O fluxo é via PR: `develop` é a branch de desenvolvimento, `main`
+é a branch de produção — abrir PR de `develop` para `main` e mergear libera o
+deploy. Detalhes em `docs/guia-pull-request.md`.
 
 > Isso importa em especial pro rodízio de unidades da rota raiz (ver acima):
 > ele depende de um único processo Node compartilhando o contador em
