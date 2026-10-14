@@ -47,6 +47,7 @@ dependência do projeto — `vitest.config.ts` resolve os aliases `@/*` via
          vinculo: "carteira",
          inss: "afastado",
          whatsapp: "(41) 99999-0000",
+         tipoLesao: "limitacao",
          regiao: "braco",
          lesao: "fratura de exemplo",
        };

@@ -10,7 +10,8 @@
  *   aviso -> P1 (benefício) -> [BPC/Apos. Normal: confirma -> desqualificado]
  *                            -> [invalidez] -> P2 (13º)
  *                                 -> [Não: confirma -> desqualificado]
- *                                 -> [Sim] -> P3 (motivo) -> WhatsApp
+ *                                 -> [Sim] -> P3 (situação) -> P4 (motivo)
+ *                                 -> WhatsApp
  * Depois que o lead confirma uma resposta que desqualifica, o botão
  * "Voltar" some — não dá pra reabrir o funil a partir da desqualificação.
  */

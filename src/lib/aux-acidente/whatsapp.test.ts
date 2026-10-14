@@ -100,3 +100,35 @@ describe("buildMessage — etiqueta de time (rota raiz, rodízio A/B/C)", () => 
     );
   });
 });
+
+describe("buildMessage — tipo de lesão", () => {
+  const base: Answers = {
+    nome: "Fulano",
+    sequela: "sim",
+    vinculo: "carteira",
+    inss: "afastado",
+    whatsapp: "(41) 99999-0000",
+  };
+
+  it("limitação de movimento: cabeçalho com a região e linhas de tipo/região", () => {
+    const message = buildMessage(
+      { ...base, tipoLesao: "limitacao", regiao: "braco", lesao: "fratura" },
+      {},
+    );
+
+    expect(message.startsWith("Caso: fratura na região do braço ou mão\n")).toBe(true);
+    expect(message).toContain("Tipo de lesão: Limitação de Movimento");
+    expect(message).toContain("Região: Braço ou mão");
+  });
+
+  it("amputação: sem região, mesmo que o lead tenha respondido antes e voltado", () => {
+    const message = buildMessage(
+      { ...base, tipoLesao: "amputacao", regiao: "braco", lesao: "perdi dois dedos" },
+      {},
+    );
+
+    expect(message.startsWith("Caso: perdi dois dedos\n")).toBe(true);
+    expect(message).toContain("Tipo de lesão: Amputação");
+    expect(message).not.toContain("Região:");
+  });
+});
