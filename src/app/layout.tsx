@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import MetaPixel from "@/components/MetaPixel";
+import TikTokPixel from "@/components/TikTokPixel";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,6 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="h-full antialiased">
+      <head>
+        <TikTokPixel />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
         <MetaPixel />

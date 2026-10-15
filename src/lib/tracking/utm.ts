@@ -14,6 +14,7 @@ export const TRACKING_PARAMS = [
   "utm_term",
   "fbclid",
   "gclid",
+  "ttclid",
 ] as const;
 
 export type TrackingParam = (typeof TRACKING_PARAMS)[number];

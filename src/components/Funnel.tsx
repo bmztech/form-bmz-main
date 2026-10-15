@@ -12,7 +12,7 @@ import {
 } from "@/lib/aux-acidente/form";
 import { buildMessage, buildWhatsAppUrl } from "@/lib/aux-acidente/whatsapp";
 import { phoneDigits, sendLeadWebhook } from "@/lib/lead-webhook";
-import { trackLead } from "@/lib/meta/pixel";
+import { trackLead } from "@/lib/tracking/conversion";
 import { INSTAGRAM_URL, SITE_URL } from "@/lib/site/config";
 import { markSubmitted, useHasSubmitted } from "@/lib/submission/status";
 import { isValidPhone, maskPhone } from "@/lib/tracking/phone";
