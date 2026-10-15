@@ -1,5 +1,5 @@
 import { WHATSAPP_NUMBER } from "./config";
-import { STEPS, labelFor, phraseFor, type Answers } from "./form";
+import { answeredPath, labelFor, phraseFor, type Answers } from "./form";
 import type { Tracking } from "../tracking/utm";
 
 /**
@@ -10,7 +10,10 @@ export function buildHeadline(answers: Answers): string {
   const lesao = answers.lesao?.trim();
   if (!lesao) return "Caso novo pelo formulário do site.";
 
-  const regiao = phraseFor("regiao", answers);
+  // Só "Limitação de Movimento" pergunta a região — ignora resposta antiga
+  // se o lead voltou e trocou para outro tipo de lesão.
+  const regiao =
+    answers.tipoLesao === "limitacao" ? phraseFor("regiao", answers) : "";
   return regiao ? `Caso: ${lesao} na região ${regiao}` : `Caso: ${lesao}`;
 }
 
@@ -31,10 +34,9 @@ export function buildMessage(
   if (unit) lines.push(`[TIME ${unit.toUpperCase()}]`);
   lines.push(buildHeadline(answers), "");
 
-  for (const step of STEPS) {
-    const value = answers[step.id];
-    if (!value || step.hideInSummary) continue; // não exibido neste caminho
-    lines.push(`${step.summaryLabel}: ${labelFor(step, value)}`);
+  for (const step of answeredPath(answers)) {
+    if (step.hideInSummary) continue;
+    lines.push(`${step.summaryLabel}: ${labelFor(step, answers[step.id])}`);
   }
 
   const trackingEntries = Object.entries(tracking).filter(([, v]) => v);

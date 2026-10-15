@@ -130,7 +130,20 @@ export const STEPS: Step[] = [
     summaryLabel: "WhatsApp",
     question: "Qual seu WhatsApp?",
     placeholder: "(00) 00000-0000",
-    next: "regiao",
+    next: "tipoLesao",
+  },
+  {
+    id: "tipoLesao",
+    kind: "choice",
+    summaryLabel: "Tipo de lesão",
+    question: "Qual foi a sua lesão?",
+    options: [
+      { value: "amputacao", label: "Amputação" },
+      { value: "limitacao", label: "Limitação de Movimento" },
+      { value: "visao_monocular", label: "Visão Monocular" },
+    ],
+    // Só limitação de movimento precisa saber a parte do corpo afetada.
+    next: (v) => (v === "limitacao" ? "regiao" : "lesao"),
   },
   {
     id: "regiao",
@@ -143,9 +156,8 @@ export const STEPS: Step[] = [
       {
         value: "Ombro ou Clavícula",
         label: "Ombro ou Clavícula",
-        phrase: "da Ombro ou Clavícula",
+        phrase: "do ombro ou clavícula",
       },
-      { value: "visao", label: "Visão", phrase: "da visão" },
       { value: "cabeca", label: "Cabeça", phrase: "da cabeça" },
       { value: "costas", label: "Costas", phrase: "das costas" },
       // Label "Outra região" é usada pela automação do WhatsApp pra
@@ -161,8 +173,7 @@ export const STEPS: Step[] = [
     summaryLabel: "Lesão",
     // Já aparece por extenso na primeira linha da mensagem.
     hideInSummary: true,
-    question: (answers) =>
-      `Em poucas palavras, qual é a sua lesão na região ${phraseFor("regiao", answers)}?`,
+    question: "Em poucas palavras, descreva a sua lesão",
     placeholder: "Ex.: fratura que não consolidou",
     next: "submit",
   },
@@ -176,6 +187,21 @@ export const TOTAL_QUESTIONS = STEPS.filter((s) => s.counted !== false).length;
 /** Resolve o próximo id a partir do step atual e da resposta dada. */
 export function resolveNext(step: Step, value: string): string {
   return typeof step.next === "function" ? step.next(value) : step.next;
+}
+
+/**
+ * Steps respondidos no caminho que vale hoje, em ordem. Se o lead voltou e
+ * trocou de ramo (ex.: "Limitação de Movimento" -> "Amputação"), a resposta
+ * antiga do ramo abandonado (`regiao`) continua em `answers`, mas fica fora.
+ */
+export function answeredPath(answers: Answers): Step[] {
+  const path: Step[] = [];
+  let step = stepById(FIRST_STEP);
+  while (step && answers[step.id] && !path.includes(step)) {
+    path.push(step);
+    step = stepById(resolveNext(step, answers[step.id]));
+  }
+  return path;
 }
 
 /** Converte o valor interno na label legível que vai para a mensagem. */

@@ -124,7 +124,7 @@ export const STEPS: Step[] = [
       { value: "sim", label: "Sim" },
       { value: "nao", label: "Não" },
     ],
-    next: (v) => (v === "sim" ? "motivo" : "confirmaDecimo13"),
+    next: (v) => (v === "sim" ? "situacao" : "confirmaDecimo13"),
   },
   {
     id: "confirmaDecimo13",
@@ -140,6 +140,21 @@ export const STEPS: Step[] = [
     next: (v) => (v === "sim" ? "disqualified" : "decimo13"),
   },
   // Pergunta 03 (só quando a pergunta 02 = sim)
+  {
+    id: "situacao",
+    kind: "choice",
+    summaryLabel: "Situação",
+    question: "Seu caso se enquadra em alguma dessas situações?",
+    options: [
+      { value: "tetraplegico", label: "Tetraplégico" },
+      { value: "acamado", label: "Acamado" },
+      { value: "paraplegico", label: "Paraplégico" },
+      { value: "cadeirante", label: "Cadeirante" },
+      { value: "outro", label: "Outro" },
+    ],
+    next: "motivo",
+  },
+  // Pergunta 04
   {
     id: "motivo",
     kind: "text",
