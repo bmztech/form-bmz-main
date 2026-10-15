@@ -8,12 +8,12 @@ declare global {
 }
 
 /**
- * Conversão principal: o lead terminou o funil e foi falar com o escritório.
- * Disparado no clique do botão da tela final, em `Funnel.tsx`.
+ * Evento `Lead` do Meta. Chamado só por `trackLead()`, em
+ * `src/lib/tracking/conversion.ts` — os funis não falam direto com o pixel.
  *
  * O `?.` é proposital — bloqueador de anúncio ou falha de rede deixam `fbq`
  * indefinido, e nesse caso o formulário tem que continuar funcionando.
  */
-export function trackLead(): void {
+export function trackMetaLead(): void {
   window.fbq?.("track", "Lead");
 }
