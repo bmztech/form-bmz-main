@@ -3,8 +3,8 @@ import { META_PIXEL_ID } from "@/lib/meta/pixel";
 
 /**
  * Código base do Meta Pixel: carrega a lib e registra o PageView.
- * O evento de conversão (Lead) é disparado em `Funnel.tsx`, no clique da
- * tela final.
+ * O evento de conversão (Lead) é disparado em `trackLead()`
+ * (`src/lib/tracking/conversion.ts`), no clique da tela final.
  */
 export default function MetaPixel() {
   return (

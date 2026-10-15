@@ -54,15 +54,16 @@ src/
   components/
     Funnel.tsx                motor + telas do auxílio-acidente
     FunnelAdic25.tsx          motor + telas do adicional de 25%
-    Linktree.tsx, MetaPixel.tsx
+    Linktree.tsx, MetaPixel.tsx, TikTokPixel.tsx
   lib/
     aux-acidente/             form.ts, config.ts, whatsapp.ts, rotation.ts, testes
     adic25/                   form.ts, config.ts, whatsapp.ts, testes
     linktree/config.ts        cards da rota /
     lead-webhook.ts           payload + envio ao BI (compartilhado)
-    tracking/                 utm.ts, phone.ts, links.ts (compartilhado)
+    tracking/                 utm.ts, phone.ts, links.ts, conversion.ts (compartilhado)
     submission/status.ts      "já enviei" por grupo (compartilhado)
     meta/pixel.ts             Meta Pixel (compartilhado)
+    tiktok/pixel.ts           TikTok Pixel (compartilhado)
     site/config.ts            Instagram e site institucional (compartilhado)
 ```
 
@@ -188,7 +189,7 @@ No clique final, o navegador posta o lead em `/api/lead-webhook`, na mesma orige
 | `whatsappDestino` | Número BMZ que recebe a mensagem |
 | `mensagem` | Texto completo que o `wa.me` abre |
 | `respostas` | Respostas cruas, com o `value` de cada step por `id` |
-| `tracking` | UTMs, fbclid, gclid, referrer e landing\_page |
+| `tracking` | UTMs, fbclid, gclid, ttclid, referrer e landing\_page |
 
 - **Dispara e esquece:** `sendLeadWebhook` usa `keepalive` e ignora qualquer falha. O envio ao BI nunca pode impedir a abertura do WhatsApp.
 - **Sem reenvio:** o `leadReported` no componente impede um segundo envio se o lead voltar e clicar de novo.
@@ -196,22 +197,22 @@ No clique final, o navegador posta o lead em `/api/lead-webhook`, na mesma orige
 - **Configuração:** `LEAD_WEBHOOK_URL` e `LEAD_WEBHOOK_TOKEN`. O token vai no header `X-Webhook-Token` e também em `?token=`. O timeout é de 8 segundos.
 - **Fallback fixo no código, por decisão do time:** a rota tem um fallback com URL e token fixos (commit `0e9ca9e`), presente na `main` e na `develop`. Ele fica de propósito, porque o `.env` da Hostinger já falhou em produção e derrubou a captação. Os logs de 05/10 mostram "usando env", e o log "[lead-webhook] config" diz a cada lead qual fonte está valendo. Como o token está no repositório, quem tem acesso ao repo tem acesso ao token. Mantenha o repo privado e restrinja quem pode ler.
 
-### Meta Pixel
+### Pixels (Meta e TikTok)
 
-O pixel `1289395722733398` é montado uma vez em `layout.tsx` e cobre todas as rotas.
+Os pixels do Meta (`1289395722733398`) e do TikTok (`CCOQ4PRC77UB4C8P7T1G`) são montados uma vez em `layout.tsx`, em paralelo, e cobrem todas as rotas.
 
-| Evento | Quando dispara |
-| --- | --- |
-| `PageView` | Toda carga de página |
-| `Lead` | Clique em "Falar com um advogado agora" (`trackLead()`) |
+| Evento | Meta | TikTok | Quando dispara |
+| --- | --- | --- | --- |
+| Visita | `PageView` | `PageView` (`ttq.page()`) | Toda carga de página |
+| Conversão | `Lead` | `Contact` | Clique em "Falar com um advogado agora" |
 
-O `Lead` não dispara para quem foi desqualificado nem para quem abandonou o funil.
+Os funis só chamam `trackLead()`, em `tracking/conversion.ts`, que dispara o evento de cada pixel. Uma plataforma nova entra ali, sem mexer nos funis. A conversão não dispara para quem foi desqualificado nem para quem abandonou o funil. Detalhes em `docs/meta-pixel.md`.
 
 ### UTMs e rastreamento
 
-- **Parâmetros capturados:** `TRACKING_PARAMS` em `tracking/utm.ts` lista `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `fbclid` e `gclid`. Um parâmetro novo entra nessa lista e passa a valer para todos os funis.
+- **Parâmetros capturados:** `TRACKING_PARAMS` em `tracking/utm.ts` lista `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `fbclid`, `gclid` e `ttclid`. Um parâmetro novo entra nessa lista e passa a valer para todos os funis.
 - **Persistência:** `readTracking()` junta a URL com o que está no `sessionStorage` (`bmz_tracking`). Assim as UTMs sobrevivem a um reload no meio do funil. O `referrer` e a `landing_page` são gravados só na primeira visita da sessão.
-- **Propagação:** o linktree e o rodízio repassam as UTMs ao destino com `buildTrackedHref`. Parâmetros fora da lista são descartados.
+- **Propagação:** o linktree e o rodízio repassam as UTMs ao destino com `buildTrackedHref`. Parâmetros fora da lista são descartados. Isso vale também para os IDs de clique (`fbclid`, `gclid`, `ttclid`): o rodízio redireciona no servidor, onde nenhum pixel roda, então um ID fora da lista se perde e a plataforma deixa de atribuir a conversão.
 
 ### "Já enviei" por grupo
 

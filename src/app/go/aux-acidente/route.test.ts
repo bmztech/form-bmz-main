@@ -41,6 +41,18 @@ describe("GET /go/aux-acidente", () => {
     expect(url.searchParams.get("utm_campaign")).toBe("inss_acidente");
   });
 
+  it("preserva o ttclid do TikTok no Location", () => {
+    const res = GET(
+      new Request(
+        "http://localhost/go/aux-acidente?utm_source=tiktok&ttclid=E.C.P.abc123",
+      ),
+    );
+    const url = locationOf(res);
+
+    expect(url.searchParams.get("utm_source")).toBe("tiktok");
+    expect(url.searchParams.get("ttclid")).toBe("E.C.P.abc123");
+  });
+
   it("não deixa parâmetros extras da entrada vazarem pro destino", () => {
     const res = GET(
       new Request("http://localhost/go/aux-acidente?foo=bar&time=c"),

@@ -25,7 +25,7 @@ export type LeadWebhookPayload = {
   mensagem: string;
   /** Respostas cruas, chaveadas pelo id do step (ver src/lib/form*.ts). */
   respostas: Record<string, string>;
-  /** UTMs, fbclid/gclid, referrer e landing_page da sessão. */
+  /** UTMs, fbclid/gclid/ttclid, referrer e landing_page da sessão. */
   tracking: Record<string, string | undefined>;
 };
 

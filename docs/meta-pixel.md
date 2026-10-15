@@ -11,11 +11,25 @@ O pixel deste repo é um só e vale para todas as rotas do form.bmzadvogados.com
 | ID do pixel | `src/lib/meta/pixel.ts` (`META_PIXEL_ID`) | Guarda o ID. É a única fonte. |
 | Código base | `src/components/MetaPixel.tsx` | Carrega o script do Meta, faz `fbq('init', ID)` e dispara `PageView`. Inclui o `noscript` com a imagem de 1 pixel. |
 | Montagem | `src/app/layout.tsx` | Renderiza `<MetaPixel />` uma vez. Cobre `/`, `/aux-a`, `/aux-b`, `/aux-c` e `/adic-25`. |
-| Evento de conversão | `trackLead()` em `src/lib/meta/pixel.ts` | Dispara `Lead` no clique de "Falar com um advogado agora". É chamado em `Funnel.tsx` e em `FunnelAdic25.tsx`. |
+| Evento de conversão | `trackMetaLead()` em `src/lib/meta/pixel.ts` | Dispara `Lead`. Só é chamado por `trackLead()`, em `src/lib/tracking/conversion.ts`. |
+| Ponto único de conversão | `trackLead()` em `src/lib/tracking/conversion.ts` | Chamado no clique de "Falar com um advogado agora", em `Funnel.tsx` e `FunnelAdic25.tsx`. Dispara o evento de cada pixel. |
 
 ID atual do form.bmzadvogados.com: `1289395722733398`.
 
-Os anúncios do Facebook, Instagram, Messenger e Audience Network usam o mesmo pixel. Ele pertence ao site, não à plataforma de origem do tráfego. Hoje não existe um pixel por rede social. A seção "Vários pixels por plataforma" descreve o plano para separar Instagram, Facebook e TikTok.
+Os anúncios do Facebook, Instagram, Messenger e Audience Network usam o mesmo pixel. Ele pertence ao site, não à plataforma de origem do tráfego. O TikTok tem pixel próprio, descrito na seção "TikTok Pixel".
+
+## TikTok Pixel
+
+O TikTok tem pixel próprio (`ttq`) e roda **em paralelo** ao Meta, em todas as rotas. Cada plataforma só atribui conversões a quem clicou no anúncio dela, então os dois juntos não misturam a otimização.
+
+| Peça | Arquivo | O que faz |
+| --- | --- | --- |
+| ID do pixel | `src/lib/tiktok/pixel.ts` (`TIKTOK_PIXEL_ID`) | Guarda o ID. Atual: `CCOQ4PRC77UB4C8P7T1G`. |
+| Código base | `src/components/TikTokPixel.tsx` | Carrega o script do TikTok, faz `ttq.load(ID)` e `ttq.page()`. |
+| Montagem | `src/app/layout.tsx` | Renderiza `<TikTokPixel />` ao lado do `<MetaPixel />`. |
+| Evento de conversão | `trackTikTokContact()` em `src/lib/tiktok/pixel.ts` | Dispara `Contact`. Só é chamado por `trackLead()`, junto com o `Lead` do Meta. |
+
+Para testar, use a extensão **TikTok Pixel Helper** e a aba **Test Events** do TikTok Events Manager, como na seção "Como testar".
 
 ## Onde pegar o ID
 
@@ -56,7 +70,7 @@ O `trackLead()` já funciona sem mudança. Com vários pixels iniciados, `fbq('t
 
 ## Vários pixels por plataforma (Instagram, Facebook, TikTok)
 
-Este é o plano para quando cada plataforma tiver o seu ID. Hoje **não está implementado**. O código abaixo é um modelo para quem for construir.
+Alternativa **não adotada**. O TikTok foi implementado em paralelo ao Meta (seção "TikTok Pixel"), sem escolher pixel pelo `utm_source`. Este modelo só vale se um dia for preciso separar pixels do Meta por origem.
 
 ### Antes de decidir
 
@@ -108,7 +122,7 @@ export function pixelFor(utmSource?: string): Pixel {
 2. **`src/components/MetaPixel.tsx`:** deixa de iniciar um ID fixo. O script base lê o `utm_source` da URL e, se não houver, de `bmz_tracking` no `sessionStorage`. Depois escolhe o pixel e inicia **só esse**:
     - Pixel do Meta: `fbq('init', id)` e `fbq('track', 'PageView')`.
     - Pixel do TikTok: carrega o script do TikTok e roda `ttq.load(id)` e `ttq.page()`.
-3. **`trackLead()`:** continua sendo o único ponto chamado pelos funis. Ele passa a olhar a plataforma do pixel escolhido e dispara o evento certo:
+3. **`trackLead()`** (`src/lib/tracking/conversion.ts`): continua sendo o único ponto chamado pelos funis. Ele passa a olhar a plataforma do pixel escolhido e dispara o evento certo:
     - Meta: `fbq('track', 'Lead')`.
     - TikTok: o evento equivalente de lead do TikTok, como `SubmitForm` ou `CompleteRegistration`. Confirme o nome no TikTok Events Manager antes de usar.
 4. **`Funnel.tsx` e `FunnelAdic25.tsx`:** não mudam. Eles já chamam `trackLead()`.
