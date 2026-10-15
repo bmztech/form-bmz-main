@@ -26,12 +26,19 @@ const FORM_GROUP = "aux-acidente";
 
 /**
  * Total exato de perguntas do caminho que o lead está percorrendo.
- * Só o step "vinculo" altera o tamanho do funil (MEI/desempregado ganham a
- * pergunta extra sobre carteira assinada no ano anterior).
+ * Dois steps alteram o tamanho do funil: "vinculo" (MEI/desempregado ganham a
+ * pergunta extra sobre carteira assinada no ano anterior) e "tipoLesao" (só
+ * limitação de movimento pergunta a parte do corpo — até responder, conta
+ * o caminho mais longo).
  */
 function pathTotal(answers: Answers): number {
   const v = answers.vinculo;
-  return v === "mei" || v === "desempregado" ? 8 : 7;
+  const t = answers.tipoLesao;
+  return (
+    7 +
+    (v === "mei" || v === "desempregado" ? 1 : 0) +
+    (!t || t === "limitacao" ? 1 : 0)
+  );
 }
 
 type Screen = "intro" | "question" | "disqualified" | "done";

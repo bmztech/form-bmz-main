@@ -252,14 +252,18 @@ Abertura
                                                               ▼
                                                  Buscou o INSS?
                                                      └─ WhatsApp
-                                                         └─ Parte do corpo
-                                                             ├─ Cabeça / Costas ──► Desqualificado
-                                                             └─ demais
-                                                                 └─ Qual é a lesão
-                                                                     └─ ✅ abre o wa.me
+                                                         └─ Qual foi a sua lesão?
+                                                             ├─ Amputação / Visão Monocular ─────────┐
+                                                             └─ Limitação de Movimento               │
+                                                                 └─ Parte do corpo                   │
+                                                                     ├─ Cabeça / Costas ──► Desqualificado
+                                                                     └─ demais ──────────────────────┤
+                                                                                                     ▼
+                                                                         Descreva a sua lesão
+                                                                             └─ ✅ abre o wa.me
 ```
 
-Só o step `vinculo` muda o tamanho do caminho (7 ou 8 perguntas) — por isso
+Os steps `vinculo` e `tipoLesao` mudam o tamanho do caminho (7 a 9 perguntas) — por isso
 `Funnel.tsx` calcula o total da barra de progresso com `pathTotal(answers)`
 em vez de usar uma constante fixa. Se você adicionar outra ramificação que
 mude o número de perguntas do caminho, atualize essa função.
@@ -280,8 +284,10 @@ Nome → WhatsApp → [aviso informativo]
                                                   └─ Confirma? ── Sim ──► Desqualificado
                                                                └─ Não ──► volta pra P2
                                                                                      ▼
-                                                                          P3: Motivo da invalidez
-                                                                              └─ ✅ abre o wa.me
+                                                                          P3: Seu caso se enquadra em alguma situação?
+                                                                              └─ (qualquer resposta)
+                                                                                  P4: Motivo da invalidez
+                                                                                      └─ ✅ abre o wa.me
 ```
 
 Padrão "pergunta + confirmação" em vez de desqualificar direto: perguntas que
@@ -323,7 +329,7 @@ a barra de progresso usa a constante `TOTAL_QUESTIONS` direto (ver comentário
 ### Exemplo de mensagem gerada (funil original)
 
 ```
-Caso: perdi dois dedos da mão direita na região do braço ou mão
+Caso: não consigo fechar a mão direita na região do braço ou mão
 
 Nome: Carlos Henrique Alves
 Sequela: Sim
@@ -331,6 +337,7 @@ Vínculo: Era MEI, Autônomo
 Carteira até 1 ano antes: Sim
 INSS: Fui ao INSS mas fui negado
 WhatsApp: (41) 99987-1234
+Tipo de lesão: Limitação de Movimento
 Região: Braço ou mão
 
 — origem —
