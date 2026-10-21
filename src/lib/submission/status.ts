@@ -10,7 +10,7 @@
 
 import { useSyncExternalStore } from "react";
 
-export type FormGroup = "aux-acidente" | "adic25";
+export type FormGroup = "aux-acidente" | "adic25" | "trabalhista";
 
 const KEY_PREFIX = "bmz_submitted_";
 

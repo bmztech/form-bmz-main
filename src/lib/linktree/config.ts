@@ -23,6 +23,14 @@ export const LINKTREE_LINKS: LinktreeLink[] = [
       "Sofreu um acidente e ficou com alguma sequela? Veja se você tem direito a um benefício do INSS.",
   },
   {
+    id: "trabalhista",
+    // Passa pelo rodízio de times antes de cair no funil.
+    href: "/go/trabalhista",
+    label: "Acidente de Trabalho",
+    description:
+      "Sofreu um acidente de trabalho e ficou com sequelas? Você pode ter direito a uma indenização da empresa.",
+  },
+  {
     id: "adic-25",
     href: "/adic-25",
     label: "Adicional de 25%",

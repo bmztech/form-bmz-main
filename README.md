@@ -51,6 +51,7 @@ mexer/quebrar um formulário sem risco de afetar outro.
 src/lib/
   aux-acidente/   form.ts, config.ts, whatsapp.ts, rotation.ts, *.test.ts
   adic25/         form.ts, config.ts, whatsapp.ts
+  trabalhista/    form.ts, config.ts, whatsapp.ts, rotation.ts, *.test.ts
   linktree/       config.ts        (cards exibidos na rota raiz "/")
   meta/           pixel.ts
   site/           config.ts        (INSTAGRAM_URL, SITE_URL)
@@ -65,6 +66,7 @@ src/lib/
 | --------------------- | ----------------------------- | --------------------- | -------------------------- | -------------------------- | ------------------------ |
 | Auxílio-acidente (original) | `/aux-a`, `/aux-b`, `/aux-c` | `src/lib/aux-acidente/form.ts` | `src/lib/aux-acidente/config.ts` | `src/lib/aux-acidente/whatsapp.ts` | `src/components/Funnel.tsx` |
 | Adicional de 25%      | `/adic-25`                    | `src/lib/adic25/form.ts` | `src/lib/adic25/config.ts` | `src/lib/adic25/whatsapp.ts` | `src/components/FunnelAdic25.tsx` |
+| Trabalhista (indenização por acidente de trabalho) | `/trab-a`, `/trab-b`, `/trab-c` | `src/lib/trabalhista/form.ts` | `src/lib/trabalhista/config.ts` | `src/lib/trabalhista/whatsapp.ts` | `src/components/FunnelTrabalhista.tsx` |
 
 `/aux-a`, `/aux-b` e `/aux-c` são o **mesmo** funil (`Funnel.tsx` +
 `aux-acidente/form.ts`), só mudando o número de WhatsApp de destino. São
@@ -368,6 +370,8 @@ export type FormGroup = "aux-acidente" | "adic25";
   por rota).
 - `/adic-25` usa o grupo `"adic25"`, independente do anterior — enviar um não
   afeta o outro.
+- `/trab-a`, `/trab-b`, `/trab-c` compartilham o grupo `"trabalhista"`,
+  independente dos outros dois.
 - Se criar um novo formulário, decida se ele deve ter grupo próprio (padrão)
   ou compartilhar um grupo existente (só se for genuinamente "a mesma oferta,
   outra origem de tráfego", como acontece entre `aux-a/b/c`).
@@ -457,6 +461,8 @@ crescer muito e as coincidências entre eles pararem de ser coincidência.
 | `/aux-b`            | `Funnel whatsappNumber={WHATSAPP_NUMBERS.b}` | Fixo na unidade B, sem etiqueta.                                            |
 | `/aux-c`            | `Funnel whatsappNumber={WHATSAPP_NUMBERS.c}` | Fixo na unidade C, sem etiqueta.                                            |
 | `/adic-25`          | `FunnelAdic25`                              | Metadata própria (`export const metadata` na `page.tsx`), `robots: noindex`. |
+| `/go/trabalhista`   | *(sem UI — route handler)*                | Mesmo rodízio A/B/C do `/go/aux-acidente`, com fila própria (`src/lib/trabalhista/rotation.ts`); redireciona pra `/trab-a`, `/trab-b` ou `/trab-c`. |
+| `/trab-a`, `/trab-b`, `/trab-c` | `FunnelTrabalhista whatsappNumber={WHATSAPP_NUMBERS.a\|b\|c}` | Fixo na unidade, metadata própria, `robots: noindex`. |
 
 `layout.tsx` (raiz) define o `<html>/<body>`, monta `MetaPixel` (todas as
 rotas) e define metadata **padrão** (`robots: noindex` — a página é destino
@@ -472,15 +478,20 @@ de anúncio, não deve competir com o site institucional na busca).
 | UTMs lidas / máscara e validação de telefone (globais)       | `src/lib/tracking/utm.ts`, `src/lib/tracking/phone.ts`            |
 | Número de WhatsApp, unidades A/B/C (funil original)          | `src/lib/aux-acidente/config.ts`                                 |
 | Número de WhatsApp do funil `adic-25`                       | `src/lib/adic25/config.ts`                                       |
+| Número de WhatsApp, unidades A/B/C (funil trabalhista)        | `src/lib/trabalhista/config.ts`                                  |
 | Perguntas, opções e lógica condicional (funil original)     | `src/lib/aux-acidente/form.ts`                                    |
 | Perguntas, opções e lógica condicional (funil `adic-25`)     | `src/lib/adic25/form.ts`                                          |
+| Perguntas, opções e lógica condicional (funil trabalhista)    | `src/lib/trabalhista/form.ts`                                     |
 | Formato da mensagem enviada (funil original)                 | `src/lib/aux-acidente/whatsapp.ts`                                 |
 | Formato da mensagem enviada (funil `adic-25`)                 | `src/lib/adic25/whatsapp.ts`                                       |
+| Formato da mensagem enviada (funil trabalhista)               | `src/lib/trabalhista/whatsapp.ts`                                  |
+| Rodízio de unidades (rota `/go/trabalhista`)                  | `src/lib/trabalhista/rotation.ts`                                  |
 | Rodízio de unidades (rota `/go/aux-acidente`)                 | `src/lib/aux-acidente/rotation.ts`                                 |
 | Cards do linktree (rota raiz "/")                             | `src/lib/linktree/config.ts`                                      |
 | Quais parâmetros de UTM são propagados entre páginas          | `src/lib/tracking/utm.ts` (`TRACKING_PARAMS`)                     |
 | Textos de abertura/desqualificação/final (funil original)     | `src/components/Funnel.tsx`                                      |
 | Textos de abertura/desqualificação/final (funil `adic-25`)     | `src/components/FunnelAdic25.tsx`                                 |
+| Textos de abertura/desqualificação/final (funil trabalhista)  | `src/components/FunnelTrabalhista.tsx`                            |
 | Cores, fonte, animação de transição de tela                  | `src/app/globals.css` (tokens `@theme`)                          |
 | Título/descrição/indexação de uma rota específica            | `export const metadata` na `page.tsx` da rota                    |
 | Pixel do Meta (ID, eventos)                                  | `src/lib/meta/pixel.ts`, `src/components/MetaPixel.tsx`            |
