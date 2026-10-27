@@ -11,7 +11,7 @@
  * Formato: código do país + DDD + número, apenas dígitos.
  * Ex.: (42) 6823-5732  ->  "554268235732"
  */
-export const WHATSAPP_NUMBER = "5542968251082";
+export const WHATSAPP_NUMBER = "5542968251270";
 
 /**
  * Números por unidade, usados nas rotas /aux-a, /aux-b e /aux-c — cada uma
@@ -20,7 +20,7 @@ export const WHATSAPP_NUMBER = "5542968251082";
  * sequencial e redireciona pra uma dessas três rotas (ver `./rotation.ts`).
  */
 export const WHATSAPP_NUMBERS = {
-  a: "5542968251082", // BMZ A
-  b: "5542968251082", // BMZ B
-  c: "5542968251082", // BMZ C
+  a: "5542968251270", // BMZ A
+  b: "5542968251270", // BMZ B
+  c: "5542968251270", // BMZ C
 } as const;
